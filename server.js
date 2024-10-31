@@ -20,13 +20,6 @@ server.get('/api', (req, res) => {
 });
 
 server.use("/api",findProductRouter);
-// server.get('/api/products', async(req, res) => {
-//     try {
-//         const productData = await productSchema.find({});
-//         return res.status(200).json(productData)
-//     } catch (error) {
-//         console.log(error);
-//     }
-// })
+
 
 server.listen(PORT,() => { console.log('listening on port', PORT)});
