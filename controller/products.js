@@ -3,6 +3,10 @@ const productSchema = require("../model/products");
 const findProducts = async (req, res) => {
   try {
     console.log("request query", req.query);
+    if(req.query.product_category === 'all') {
+      delete req.query.product_category;
+    }
+
     if (req.query.page && req.query.limit) {
       req.query.page = +(req.query.page || 0);
       req.query.limit = +(req.query.limit || 5);
@@ -14,12 +18,12 @@ const findProducts = async (req, res) => {
 
     let queryObj = { ...req.query };
 
-    // console.log("query object", queryObj);
+    console.log("query object", queryObj);
 
     excludeFields.forEach((field) => {
       delete queryObj[field];
     });
-    // console.log(req.query);
+    console.log(queryObj);
 
     let QueryString = JSON.stringify(queryObj);
     QueryString = QueryString.replace(
@@ -29,13 +33,8 @@ const findProducts = async (req, res) => {
     QueryString = JSON.parse(QueryString);
     console.log("query string", QueryString);
 
-    let productData;
-    if (QueryString.product_category === "all") {
-      productData = await productSchema.find({});
-    } 
-    else {
-      productData = await productSchema.find(QueryString);
-    }
+    let productData = await productSchema.find(QueryString);
+    
 
     let products = productData.slice(startIndex, endIndex);
 

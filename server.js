@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const database = require('./database');
 const findProductRouter = require('./routes/products');
+const findSingleProductRouter = require('./routes/singleProduct');
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ server.get('/api', (req, res) => {
 });
 
 server.use("/api",findProductRouter);
+server.use('/api',findSingleProductRouter)
 
 
 server.listen(PORT,() => { console.log('listening on port', PORT)});
