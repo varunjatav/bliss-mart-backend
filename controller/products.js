@@ -3,26 +3,23 @@ const productSchema = require("../model/products");
 const findProducts = async (req, res) => {
   try {
     console.log("request query", req.query);
-    if(req.query.page && req.query.limit)
-    {
-        req.query.page = +(req.query.page || 0);
-        req.query.limit = +(req.query.limit || 5);
-        var startIndex = (req.query.page - 1) * req.query.limit;
-        var endIndex = req.query.page * req.query.limit;
+    if (req.query.page && req.query.limit) {
+      req.query.page = +(req.query.page || 0);
+      req.query.limit = +(req.query.limit || 5);
+      var startIndex = (req.query.page - 1) * req.query.limit;
+      var endIndex = req.query.page * req.query.limit;
     }
-    
-    
 
     let excludeFields = ["sort", "page", "limit", "fields"];
 
     let queryObj = { ...req.query };
 
-    console.log("query object", queryObj);
+    // console.log("query object", queryObj);
 
     excludeFields.forEach((field) => {
       delete queryObj[field];
     });
-    console.log(req.query);
+    // console.log(req.query);
 
     let QueryString = JSON.stringify(queryObj);
     QueryString = QueryString.replace(
@@ -32,15 +29,24 @@ const findProducts = async (req, res) => {
     QueryString = JSON.parse(QueryString);
     console.log("query string", QueryString);
 
-    const productData = await productSchema.find(QueryString);
+    let productData;
+    if (QueryString.product_category === "all") {
+      productData = await productSchema.find({});
+    } 
+    else {
+      productData = await productSchema.find(QueryString);
+    }
+
     let products = productData.slice(startIndex, endIndex);
-    console.log("products",products.length);
+
+    // console.log("products",products);
 
     // console.log(productData);
+
     return res.status(200).json({
       status: "success",
       length: productData.length,
-      productData: productData,
+      productData: products,
     });
   } catch (error) {
     console.log(error);
