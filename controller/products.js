@@ -6,14 +6,9 @@ const findProducts = async (req, res) => {
     if(req.query.product_category === 'all') {
       delete req.query.product_category;
     }
-
-    if (req.query.page && req.query.limit) {
-      req.query.page = +(req.query.page || 0);
-      req.query.limit = +(req.query.limit || 5);
-      var startIndex = (req.query.page - 1) * req.query.limit;
-      var endIndex = req.query.page * req.query.limit;
+    if(req.query.product_price.$lte === '100000') {
+      delete req.query.product_price;
     }
-
     let excludeFields = ["sort", "page", "limit", "fields"];
 
     let queryObj = { ...req.query };
@@ -36,7 +31,7 @@ const findProducts = async (req, res) => {
     let productData = await productSchema.find(QueryString);
     
 
-    let products = productData.slice(startIndex, endIndex);
+    // let products = productData.slice(startIndex, endIndex);
 
     // console.log("products",products);
 
@@ -45,7 +40,7 @@ const findProducts = async (req, res) => {
     return res.status(200).json({
       status: "success",
       length: productData.length,
-      productData: products,
+      productData: productData,
     });
   } catch (error) {
     console.log(error);
