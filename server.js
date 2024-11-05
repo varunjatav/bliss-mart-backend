@@ -5,7 +5,8 @@ const database = require("./database");
 const findProductRouter = require("./routes/products");
 const findSingleProductRouter = require("./routes/singleProduct");
 const cartRouter = require("./routes/cart");
-const bodyParser = require("body-parser");
+const authRouter = require("./routes/auth");
+const bodyParser = require("body-parser");  
 dotenv.config();
 
 const server = express();
@@ -32,6 +33,7 @@ server.get("/api", (req, res) => {
 server.use("/api", findProductRouter);
 server.use("/api", findSingleProductRouter);
 server.use("/api", cartRouter);
+server.use('/api',authRouter);
 
 server.listen(PORT, () => {
   console.log("listening on port", PORT);
