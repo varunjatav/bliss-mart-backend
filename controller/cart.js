@@ -37,8 +37,8 @@ const postToCartContoller = async (req, res) => {
 
     await cart.save();
     res.status(200).json({
-      status:"success",
-      cart: cart
+      status: "success",
+      cart: cart,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -46,8 +46,8 @@ const postToCartContoller = async (req, res) => {
 };
 
 const getCartController = async (req, res) => {
-  const userId = req.body.userId;
-
+  const userId = req.query.userId; // Get userId from query parameters
+  console.log("User ID:", userId);
   try {
     const cart = await cartSchema
       .findOne({ user: userId })
@@ -62,4 +62,75 @@ const getCartController = async (req, res) => {
   }
 };
 
-module.exports = { postToCartContoller, getCartController };
+// Remove item from cart
+const removeFromCart = async (req, res) => {
+  const { productId, userId } = req.params;
+  try {
+    const cart = await cartSchema.findOne({ user: userId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const itemIndex = cart.items.findIndex((item) =>
+      item.product.equals(productId)
+    );
+    if (itemIndex > -1) {
+      cart.items.splice(itemIndex, 1);
+      await cart.save();
+      return res.status(200).json(cart);
+    }
+
+    res.status(404).json({ message: "Product not found in cart" });
+  } catch (error) {
+    console.error("Error removing item from cart:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// decrement cart
+const decrementCart = async (req, res) => {
+  const { productId, userId } = req.query;
+  console.log(productId, userId);
+
+  // const {userId} = req.query;
+  // console.log("userId: ", userId);
+
+  try {
+    let cart = await cartSchema.findOne({ user: userId });
+    console.log(cart);
+    
+    if (!cart) {
+      return res.status(400).json({ message:"User Cart not found"});
+    }
+    const quantity = 1;
+
+    const product = await productSchema.findById(productId);
+    console.log(product);
+
+    if (!product) {
+      return res.status(400).json({ message: "Product not found" });
+    }
+
+    const itemIndex = cart.items.findIndex((cartItem) =>
+      cartItem.product.equals(productId)
+    );
+    console.log("itemIndex: ", cart.items[itemIndex].quantity);
+
+    if (cart.items[itemIndex].quantity > 1) {
+      cart.items[itemIndex].quantity -= quantity;
+    } else {
+      cart.items.splice(itemIndex, 1);
+    }
+    await cart.save();
+    res.status(200).json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  postToCartContoller,
+  getCartController,
+  removeFromCart,
+  decrementCart,
+};
