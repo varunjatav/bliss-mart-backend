@@ -28,7 +28,7 @@ const postToCartContoller = async (req, res) => {
     const findIndex = cart.items.findIndex((cartItem) =>
       cartItem.product.equals(productId)
     );
-    console.log(findIndex);
+   
     if (findIndex > -1) {
       cart.items[findIndex].quantity += quantity;
     } else {
@@ -47,7 +47,7 @@ const postToCartContoller = async (req, res) => {
 
 const getCartController = async (req, res) => {
   const userId = req.query.userId; // Get userId from query parameters
-  console.log("User ID:", userId);
+ 
   try {
     const cart = await cartSchema
       .findOne({ user: userId })
@@ -64,16 +64,22 @@ const getCartController = async (req, res) => {
 
 // Remove item from cart
 const removeFromCart = async (req, res) => {
-  const { productId, userId } = req.params;
+  const { productId, userId } = req.query;
+  console.log("Removing item from cart", productId, userId);
+  
   try {
     const cart = await cartSchema.findOne({ user: userId });
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
+    console.log("cart", cart);
+    
 
     const itemIndex = cart.items.findIndex((item) =>
       item.product.equals(productId)
     );
+    console.log("intem index", itemIndex);
+    
     if (itemIndex > -1) {
       cart.items.splice(itemIndex, 1);
       await cart.save();
